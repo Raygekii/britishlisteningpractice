@@ -421,7 +421,7 @@
             checkAnswersBtn.disabled = true;
 
             // Automatically send score to Google Sheet backend if logged in
-            if (studentData && SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwdISU28ezaz2IKKisJ_01t2S57C6rTuExBcLyqfEES-ALVtiIEnm_-K7-vjcluHem4hA/exec") {
+if (studentData && SCRIPT_URL !== "") {
                 const payload = {
                     name: studentData.name,
                     studentClass: studentData.class,
