@@ -186,8 +186,9 @@
                     let html = `
                         <div class="grid grid-cols-12 bg-gray-100 p-2.5 rounded-lg text-xs font-bold text-gray-600 uppercase mb-2">
                             <span class="col-span-2 text-center">Rank</span>
-                            <span class="col-span-7">Student Name & Class</span>
-                            <span class="col-span-3 text-center">Completed</span>
+                            <span class="col-span-6">Student Name & Class</span>
+                            <span class="col-span-2 text-center">Done</span>
+                            <span class="col-span-2 text-center">Total</span>
                         </div>
                     `;
 
@@ -202,12 +203,15 @@
                         html += `
                             <div class="grid grid-cols-12 items-center p-3 rounded-lg border border-gray-200 ${rowBg} text-sm">
                                 <span class="col-span-2 font-bold text-center text-gray-700">${rankBadge}</span>
-                                <div class="col-span-7">
+                                <div class="col-span-6">
                                     <p class="font-semibold text-gray-800 truncate">${student.name}</p>
                                     <p class="text-xs text-gray-500">${student.studentClass}</p>
                                 </div>
-                                <span class="col-span-3 text-center font-bold text-blue-600 bg-blue-50 py-1.5 rounded-md text-xs">
-                                    ${student.completedCount} / 10
+                                <span class="col-span-2 text-center font-medium text-gray-600 text-xs">
+                                    ${student.completedCount}/10
+                                </span>
+                                <span class="col-span-2 text-center font-bold text-blue-600 bg-blue-50 py-1.5 rounded-md text-xs">
+                                    ${student.totalMarks}
                                 </span>
                             </div>
                         `;
