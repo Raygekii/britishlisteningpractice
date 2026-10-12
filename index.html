@@ -494,23 +494,21 @@
                         score++;
                         questionItem.classList.add('correct');
                         questionItem.classList.remove('incorrect');
-                        resultText.innerHTML = "";
                     } else {
                         questionItem.classList.add('incorrect');
                         questionItem.classList.remove('correct');
-                        const correctOption = question.options[ ['A', 'B', 'C'].indexOf(question.answer) ];
-                        resultText.innerHTML = `<span class="correct-answer-text">Correct answer: ${question.answer}. ${correctOption}</span>`;
                     }
                 } else {
                     questionItem.classList.add('incorrect');
                     questionItem.classList.remove('correct');
-                    const correctOption = question.options[ ['A', 'B', 'C'].indexOf(question.answer) ];
-                    resultText.innerHTML = `<span class="correct-answer-text">No answer selected. Correct answer: ${question.answer}. ${correctOption}</span>`;
                 }
+                // Clears out any text showing the correct answer options
+                resultText.innerHTML = ""; 
             });
 
             scoreContainer.innerHTML = `
                 <h3 class="text-2xl font-bold">Your Score: ${score} / ${total}</h3>
+                <p class="text-sm text-gray-500 mt-1">Answers submitted! You can retry anytime to improve your score.</p>
             `;
             checkAnswersBtn.disabled = true;
 
