@@ -7,26 +7,24 @@
     <!-- Load Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom style for the currently active track */
         .track-item.active {
-            background-color: #dbeafe; /* Tailwind's blue-100 */
-            font-weight: 600; /* Tailwind's font-semibold */
-            color: #1d4ed8; /* Tailwind's blue-700 */
+            background-color: #dbeafe;
+            font-weight: 600;
+            color: #1d4ed8;
         }
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Styles for correct/incorrect answers */
         .question-item.correct {
-            background-color: #dcfce7; /* Green-100 */
-            border-left: 4px solid #22c55e; /* Green-500 */
+            background-color: #dcfce7;
+            border-left: 4px solid #22c55e;
         }
         .question-item.incorrect {
-            background-color: #fee2e2; /* Red-100 */
-            border-left: 4px solid #ef4444; /* Red-500 */
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
         }
         .correct-answer-text {
-            color: #16a34a; /* Green-600 */
+            color: #16a34a;
             font-weight: 600;
         }
     </style>
@@ -58,14 +56,37 @@
         </div>
     </div>
 
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-xl font-bold text-gray-800">🏆 Student Leaderboard</h3>
+                <button id="close-leaderboard-btn" class="text-gray-400 hover:text-gray-600 font-bold text-2xl">&times;</button>
+            </div>
+            <div id="leaderboard-content" class="overflow-y-auto flex-1 space-y-2 pr-1">
+                <p class="text-center text-gray-500 py-6">Loading leaderboard...</p>
+            </div>
+            <div class="mt-4 pt-3 border-t text-center">
+                <button id="refresh-leaderboard-btn" class="bg-blue-50 text-blue-600 font-semibold px-4 py-2 rounded-lg text-sm hover:bg-blue-100 transition-colors">
+                    🔄 Refresh Rankings
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl overflow-hidden mb-8">
         
         <!-- Header -->
-        <div class="p-6 bg-blue-600 text-white">
-            <h1 class="text-2xl font-bold">SPM LISTENING PRACTICE</h1>
-            <p class="text-blue-100">British Accent</p>
-            <p id="logged-in-display" class="text-xs text-blue-200 mt-2 font-medium"></p>
+        <div class="p-6 bg-blue-600 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">SPM LISTENING PRACTICE</h1>
+                <p class="text-blue-100">British Accent</p>
+                <p id="logged-in-display" class="text-xs text-blue-200 mt-2 font-medium"></p>
+            </div>
+            <button id="open-leaderboard-btn" class="bg-white text-blue-600 font-bold px-3.5 py-2 rounded-lg shadow hover:bg-blue-50 transition-colors text-sm flex items-center gap-1.5 shrink-0">
+                🏆 Leaderboard
+            </button>
         </div>
 
         <!-- Audio Player & Current Track -->
@@ -131,7 +152,76 @@
             }
         });
 
-        // --- 1. Define Audio Tracks with Quiz Data ---[cite: 3]
+        // --- Leaderboard Modal Logic ---
+        const leaderboardModal = document.getElementById('leaderboard-modal');
+        const openLeaderboardBtn = document.getElementById('open-leaderboard-btn');
+        const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
+        const refreshLeaderboardBtn = document.getElementById('refresh-leaderboard-btn');
+        const leaderboardContent = document.getElementById('leaderboard-content');
+
+        openLeaderboardBtn.addEventListener('click', () => {
+            leaderboardModal.classList.remove('hidden');
+            fetchLeaderboard();
+        });
+
+        closeLeaderboardBtn.addEventListener('click', () => {
+            leaderboardModal.classList.add('hidden');
+        });
+
+        refreshLeaderboardBtn.addEventListener('click', () => {
+            fetchLeaderboard();
+        });
+
+        function fetchLeaderboard() {
+            leaderboardContent.innerHTML = `<p class="text-center text-gray-500 py-6">Fetching latest scores...</p>`;
+            
+            fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        leaderboardContent.innerHTML = `<p class="text-center text-gray-500 py-6">No completed modules recorded yet.</p>`;
+                        return;
+                    }
+
+                    let html = `
+                        <div class="grid grid-cols-12 bg-gray-100 p-2.5 rounded-lg text-xs font-bold text-gray-600 uppercase mb-2">
+                            <span class="col-span-2 text-center">Rank</span>
+                            <span class="col-span-7">Student Name & Class</span>
+                            <span class="col-span-3 text-center">Completed</span>
+                        </div>
+                    `;
+
+                    data.forEach((student, index) => {
+                        let rankBadge = `#${index + 1}`;
+                        let rowBg = "bg-white hover:bg-gray-50";
+                        
+                        if (index === 0) { rankBadge = "👑 1st"; rowBg = "bg-yellow-50 border-yellow-200"; }
+                        else if (index === 1) { rankBadge = "🥈 2nd"; rowBg = "bg-gray-50 border-gray-200"; }
+                        else if (index === 2) { rankBadge = "🥉 3rd"; rowBg = "bg-amber-50 border-amber-200"; }
+
+                        html += `
+                            <div class="grid grid-cols-12 items-center p-3 rounded-lg border border-gray-200 ${rowBg} text-sm">
+                                <span class="col-span-2 font-bold text-center text-gray-700">${rankBadge}</span>
+                                <div class="col-span-7">
+                                    <p class="font-semibold text-gray-800 truncate">${student.name}</p>
+                                    <p class="text-xs text-gray-500">${student.studentClass}</p>
+                                </div>
+                                <span class="col-span-3 text-center font-bold text-blue-600 bg-blue-50 py-1.5 rounded-md text-xs">
+                                    ${student.completedCount} / 10
+                                </span>
+                            </div>
+                        `;
+                    });
+
+                    leaderboardContent.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error("Leaderboard fetch error:", err);
+                    leaderboardContent.innerHTML = `<p class="text-center text-red-500 py-6">Failed to load leaderboard. Please try again later.</p>`;
+                });
+        }
+
+        // --- 1. Define Audio Tracks with Quiz Data ---
         const audioTracks = [
             {
                 title: "1. Celebration",
@@ -420,8 +510,7 @@
             `;
             checkAnswersBtn.disabled = true;
 
-            // Automatically send score to Google Sheet backend if logged in
-if (studentData && SCRIPT_URL !== "") {
+            if (studentData) {
                 const payload = {
                     name: studentData.name,
                     studentClass: studentData.class,
